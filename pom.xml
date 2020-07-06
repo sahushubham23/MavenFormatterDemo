@@ -16,10 +16,6 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <configFile>${project.basedir}/eclipse-formatter-config.xml</configFile>
-                    <overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
-                    <compilerSource>1.8</compilerSource>
-                    <compilerCompliance>1.8</compilerCompliance>
-                    <compilerTargetPlatform>1.8</compilerTargetPlatform>
                 </configuration>
                 <executions>
                     <execution>
