@@ -1,37 +1,99 @@
-        replaceMenuAndOption(menuItem, replacementTable);
-        addNewVariables(menuItem);
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Sample JSON string
+        String jsonString = "{\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{}]}]},{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0}]}]}]}";
 
-        // Convert MenuItem to JSON
-        String modifiedJson = objectMapper.writeValueAsString(menuItem);
-        System.out.println(modifiedJson);
+        // Sample table representing replacement values
+        List<List<String>> table = getReplacementTable(); // Implement this method to fetch the table
+        
+        // Parse JSON into Java object
+        ObjectMapper objectMapper = new ObjectMapper();
+        MenuItem menuItem = objectMapper.readValue(jsonString, MenuItem.class);
+
+        // Transform MenuItem
+        transformMenuItem(menuItem, table);
+
+        // Convert MenuItem back to JSON
+        String modifiedJsonString = objectMapper.writeValueAsString(menuItem);
+        System.out.println(modifiedJsonString);
     }
 
-    private static void replaceMenuAndOption(MenuItem menuItem, Map<String, String> replacementTable) {
-        // Replace menu and option values based on replacementTable
-        String menu = menuItem.getMenu();
-        String option = String.valueOf(menuItem.getOption());
-
-        if (replacementTable.containsKey(menu)) {
-            menuItem.setMenu(replacementTable.get(menu));
+    private static void transformMenuItem(MenuItem menuItem, List<List<String>> table) {
+        // Update menu and option based on the table
+        // For demonstration, let's assume the first list in the table contains replacement values
+        if (!table.isEmpty() && table.get(0).size() >= 2) {
+            menuItem.setMenu(table.get(0).get(0));
+            menuItem.setOption(Integer.parseInt(table.get(0).get(1)));
         }
-        // You can do the same for the option if needed
 
-        // Recursively iterate over the level
-        if (menuItem.getLevel() != null) {
-            for (MenuItem subMenuItem : menuItem.getLevel()) {
-                replaceMenuAndOption(subMenuItem, replacementTable);
+        // Remove menu and option fields
+        menuItem.setMenu(null);
+        menuItem.setOption(null);
+
+        // Add new variables based on the table
+        if (!table.isEmpty()) {
+            List<String> variableNames = table.get(0);
+            for (int i = 2; i < variableNames.size(); i++) { // Assuming the first two entries in the table are menu and option
+                menuItem.addVariable(variableNames.get(i), ""); // Initialize with an empty string
+            }
+        }
+
+        // Recursively traverse the level
+        List<MenuItem> subLevels = menuItem.getLevel();
+        if (subLevels != null) {
+            for (MenuItem subMenuItem : subLevels) {
+                transformMenuItem(subMenuItem, table);
             }
         }
     }
+}
 
-    private static void addNewVariables(MenuItem menuItem) {
-        // Add new variables as needed
-        ((ObjectNode) menuItem).put("newVariable", "newValue");
+// MenuItem class representing the structure of JSON
+class MenuItem {
+    private String menu;
+    private Integer option;
+    private List<MenuItem> level;
+    private ObjectNode variables; // Additional variables as a JSON object
 
-        // Recursively iterate over the level
-        if (menuItem.getLevel() != null) {
-            for (MenuItem subMenuItem : menuItem.getLevel()) {
-                addNewVariables(subMenuItem);
-            }
-        }
+    // Getters and setters
+
+    public String getMenu() {
+        return menu;
     }
+
+    public void setMenu(String menu) {
+        this.menu = menu;
+    }
+
+    public Integer getOption() {
+        return option;
+    }
+
+    public void setOption(Integer option) {
+        this.option = option;
+    }
+
+    public List<MenuItem> getLevel() {
+        return level;
+    }
+
+    public void setLevel(List<MenuItem> level) {
+        this.level = level;
+    }
+
+    public ObjectNode getVariables() {
+        return variables;
+    }
+
+    public void setVariables(ObjectNode variables) {
+        this.variables = variables;
+    }
+
+    // Method to add a new variable
+    public void addVariable(String name, String value) {
+        if (variables == null) {
+            variables = new ObjectMapper().createObjectNode();
+        }
+        variables.put(name, value);
+    }
+}
