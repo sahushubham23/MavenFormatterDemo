@@ -1,32 +1,37 @@
-import javax.persistence.Tuple;
-import java.util.ArrayList;
-import java.util.List;
+        replaceMenuAndOption(menuItem, replacementTable);
+        addNewVariables(menuItem);
 
-public class Main {
-    public static void main(String[] args) {
-        List<Tuple> tupleList = /* Your list of tuples */;
-        List<List<String>> resultList = convertTupleListToListOfStringLists(tupleList);
-        
-        // Print or use the resulting list of lists of strings as needed
-        for (List<String> innerList : resultList) {
-            for (String value : innerList) {
-                System.out.print(value + " ");
+        // Convert MenuItem to JSON
+        String modifiedJson = objectMapper.writeValueAsString(menuItem);
+        System.out.println(modifiedJson);
+    }
+
+    private static void replaceMenuAndOption(MenuItem menuItem, Map<String, String> replacementTable) {
+        // Replace menu and option values based on replacementTable
+        String menu = menuItem.getMenu();
+        String option = String.valueOf(menuItem.getOption());
+
+        if (replacementTable.containsKey(menu)) {
+            menuItem.setMenu(replacementTable.get(menu));
+        }
+        // You can do the same for the option if needed
+
+        // Recursively iterate over the level
+        if (menuItem.getLevel() != null) {
+            for (MenuItem subMenuItem : menuItem.getLevel()) {
+                replaceMenuAndOption(subMenuItem, replacementTable);
             }
-            System.out.println();
         }
     }
 
-    private static List<List<String>> convertTupleListToListOfStringLists(List<Tuple> tupleList) {
-        List<List<String>> resultList = new ArrayList<>();
+    private static void addNewVariables(MenuItem menuItem) {
+        // Add new variables as needed
+        ((ObjectNode) menuItem).put("newVariable", "newValue");
 
-        for (Tuple tuple : tupleList) {
-            List<String> stringList = new ArrayList<>();
-            for (int i = 0; i < tuple.getElements().size(); i++) {
-                stringList.add(String.valueOf(tuple.get(i)));
+        // Recursively iterate over the level
+        if (menuItem.getLevel() != null) {
+            for (MenuItem subMenuItem : menuItem.getLevel()) {
+                addNewVariables(subMenuItem);
             }
-            resultList.add(stringList);
         }
-
-        return resultList;
     }
-}
