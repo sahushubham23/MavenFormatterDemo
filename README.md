@@ -12,7 +12,17 @@ private static void removeInspireTransformVar(JsonNode node) {
                     }
                 }
                 if (fieldName.equals("inspireTransformVar")) {
-                    ((ObjectNode) node).remove(fieldName);
+                    if (node instanceof ObjectNode) {
+                        JsonNode inspireTransformVar = node.get(fieldName);
+                        ObjectNode objectNode = (ObjectNode) node;
+                        Iterator<String> inspireFieldNames = inspireTransformVar.fieldNames();
+                        while (inspireFieldNames.hasNext()) {
+                            String inspireFieldName = inspireFieldNames.next();
+                            JsonNode inspireFieldValue = inspireTransformVar.get(inspireFieldName);
+                            objectNode.set(inspireFieldName, inspireFieldValue);
+                        }
+                        objectNode.remove(fieldName);
+                    }
                 }
             }
         }
