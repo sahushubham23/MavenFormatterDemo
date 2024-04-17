@@ -1,99 +1,74 @@
-public class Main {
-    public static void main(String[] args) throws Exception {
-        // Sample JSON string
-        String jsonString = "{\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0,\"level\":[{}]}]},{\"menu\":\"5\",\"option\":0,\"level\":[{\"menu\":\"5\",\"option\":0}]}]}]}";
-
-        // Sample table representing replacement values
-        List<List<String>> table = getReplacementTable(); // Implement this method to fetch the table
-        
-        // Parse JSON into Java object
-        ObjectMapper objectMapper = new ObjectMapper();
-        MenuItem menuItem = objectMapper.readValue(jsonString, MenuItem.class);
-
-        // Transform MenuItem
-        transformMenuItem(menuItem, table);
-
-        // Convert MenuItem back to JSON
-        String modifiedJsonString = objectMapper.writeValueAsString(menuItem);
-        System.out.println(modifiedJsonString);
-    }
-
-    private static void transformMenuItem(MenuItem menuItem, List<List<String>> table) {
-        // Update menu and option based on the table
-        // For demonstration, let's assume the first list in the table contains replacement values
-        if (!table.isEmpty() && table.get(0).size() >= 2) {
-            menuItem.setMenu(table.get(0).get(0));
-            menuItem.setOption(Integer.parseInt(table.get(0).get(1)));
+{
+    "channels": {
+        "destinations": {
+            "documentId": "sanjkauu1d",
+            "output": "PAPER/DOCX",
+            "properties": {
+                "a": "3",
+                "appearanceOwner": "A_BL001",
+                "c": "3",
+                "documentSubType": "BLNGDSC001",
+                "documentType": "BLNGDSL001",
+                "i": "3",
+                "ifwCategory": "Contract/Collateral letter",
+                "tenant": "T_BE001"
+            },
+            "templateName": "A-BLNCN01",
+            "type": "DOC_STREAM_DST"
         }
-
-        // Remove menu and option fields
-        menuItem.setMenu(null);
-        menuItem.setOption(null);
-
-        // Add new variables based on the table
-        if (!table.isEmpty()) {
-            List<String> variableNames = table.get(0);
-            for (int i = 2; i < variableNames.size(); i++) { // Assuming the first two entries in the table are menu and option
-                menuItem.addVariable(variableNames.get(i), ""); // Initialize with an empty string
-            }
+    },
+    "identifiers": {
+        "requestId": "0ca2aa83-a39e-4066-b618-98c51995dd3d"
+    },
+    "metaData": {
+        "costCenter": "50001256",
+        "entityCode": "3180",
+        "initiatingCI": "BusinesslendingGDS"
+    },
+    "payload": {
+        "documentData": {
+            "level": [
+                {
+                    "inspireTransformVar": {
+                        "TypeOfOperation": "New"
+                    },
+                    "level": [
+                        {
+                            "inspireTransformVar": {
+                                "TypeOfProduct": "Advances in Euro",
+                                "TypeOfOperation": "Expenses in Euro"
+                            },
+                            "level": [
+                                {
+                                    "inspireTransformVar": {
+                                        "TypeOfOperation": "New"
+                                    },
+                                    "level": [
+                                        {}
+                                    ]
+                                },
+                                {
+                                    "inspireTransformVar": {
+                                        "TypeOfOperation": "New"
+                                    },
+                                    "level": [
+                                        {
+                                            "inspireTransformVar": {
+                                                "TypeOfOperation": "New"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
-
-        // Recursively traverse the level
-        List<MenuItem> subLevels = menuItem.getLevel();
-        if (subLevels != null) {
-            for (MenuItem subMenuItem : subLevels) {
-                transformMenuItem(subMenuItem, table);
-            }
-        }
-    }
-}
-
-// MenuItem class representing the structure of JSON
-class MenuItem {
-    private String menu;
-    private Integer option;
-    private List<MenuItem> level;
-    private ObjectNode variables; // Additional variables as a JSON object
-
-    // Getters and setters
-
-    public String getMenu() {
-        return menu;
-    }
-
-    public void setMenu(String menu) {
-        this.menu = menu;
-    }
-
-    public Integer getOption() {
-        return option;
-    }
-
-    public void setOption(Integer option) {
-        this.option = option;
-    }
-
-    public List<MenuItem> getLevel() {
-        return level;
-    }
-
-    public void setLevel(List<MenuItem> level) {
-        this.level = level;
-    }
-
-    public ObjectNode getVariables() {
-        return variables;
-    }
-
-    public void setVariables(ObjectNode variables) {
-        this.variables = variables;
-    }
-
-    // Method to add a new variable
-    public void addVariable(String name, String value) {
-        if (variables == null) {
-            variables = new ObjectMapper().createObjectNode();
-        }
-        variables.put(name, value);
+    },
+    "recipient": {
+        "partyType": "BLNGD",
+        "preferredLanguage": "fr",
+        "type": "custom-recipient"
     }
 }
