@@ -1,27 +1,13 @@
-private static void removeInspireTransformVar(JsonNode node) {
+    private static void removeInspireTransformVar(JsonNode node) {
         if (node.isObject()) {
             ObjectNode objectNode = (ObjectNode) node;
-            Iterator<String> fieldNames = objectNode.fieldNames();
-            while (fieldNames.hasNext()) {
-                String fieldName = fieldNames.next();
-                JsonNode fieldValue = objectNode.get(fieldName);
-                if (fieldValue.isObject()) {
-                    removeInspireTransformVar(fieldValue);
-                } else if (fieldValue.isArray()) {
-                    for (JsonNode element : fieldValue) {
-                        removeInspireTransformVar(element);
-                    }
-                }
-                if (fieldName.equals("inspireTransformVar")) {
-                    JsonNode inspireTransformVar = objectNode.get(fieldName);
-                    Iterator<String> inspireFieldNames = inspireTransformVar.fieldNames();
-                    while (inspireFieldNames.hasNext()) {
-                        String inspireFieldName = inspireFieldNames.next();
-                        JsonNode inspireFieldValue = inspireTransformVar.get(inspireFieldName);
-                        objectNode.set(inspireFieldName, inspireFieldValue);
-                    }
-                    objectNode.remove(fieldName);
-                }
+            if (objectNode.has("inspireTransformVar")) {
+                JsonNode inspireTransformVar = objectNode.get("inspireTransformVar");
+                objectNode.remove("inspireTransformVar");
+                inspireTransformVar.fields().forEachRemaining(entry -> objectNode.set(entry.getKey(), entry.getValue()));
             }
+            objectNode.fields().forEachRemaining(entry -> removeInspireTransformVar(entry.getValue()));
+        } else if (node.isArray()) {
+            node.forEach(Main::removeInspireTransformVar);
         }
     }
