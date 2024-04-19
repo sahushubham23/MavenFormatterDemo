@@ -1,88 +1,27 @@
-{
-    "channels": {
-        "destinations": {
-            "documentId": "sanjkauu1d",
-            "output": "PAPER/DOCX",
-            "properties": {
-                "a": "3",
-                "appearanceOwner": "A_BL001",
-                "c": "3",
-                "documentSubType": "BLNGDSC001",
-                "documentType": "BLNGDSL001",
-                "i": "3",
-                "ifwCategory": "Contract/Collateral letter",
-                "tenant": "T_BE001"
-            },
-            "templateName": "A-BLNCN01",
-            "type": "DOC_STREAM_DST"
-        }
-    },
-    "identifiers": {
-        "requestId": "4025a880-81ca-4a10-8814-64d7243fc528"
-    },
-    "metaData": {
-        "costCenter": "50001256",
-        "entityCode": "3180",
-        "initiatingCI": "BusinesslendingGDS"
-    },
-    "payload": {
-        "documentData": {
-            "level": [
-                {
-                    "inspireObject": {
-                        "TypeOfDocument": "ContractLetter"
-                    },
-                    "level": [
-                        {
-                            "inspireObject": {
-                                "TypeOfOperation": "New"
-                            },
-                            "level": [
-                                {
-                                    "inspireObject": {
-                                        "TypeOfProduct": "Cash credit in Euro"
-                                    },
-                                    "level": [
-                                        {}
-                                    ]
-                                },
-                                {
-                                    "inspireObject": {
-                                        "TypeOfProduct": "Cash credit in foreign currencies"
-                                    },
-                                    "level": [
-                                        {}
-                                    ]
-                                },
-                                {
-                                    "level": [
-                                        {
-                                            "inspireObject": {
-                                                "ContractSection": "Introduction"
-                                            },
-                                            "level": [
-                                                {
-                                                    "inspireObject": {
-                                                        "TypeOfOperationLev5": "Increase"
-                                                    },
-                                                    "level": [
-                                                        {}
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+private static void removeInspireObject(JsonNode node) {
+        if (node.isObject()) {
+            ObjectNode objectNode = (ObjectNode) node;
+            Iterator<String> fieldNames = objectNode.fieldNames();
+            while (fieldNames.hasNext()) {
+                String fieldName = fieldNames.next();
+                JsonNode fieldValue = objectNode.get(fieldName);
+                if (fieldValue.isObject() && fieldValue.has("inspireObject")) {
+                    // Extract the inspireObject contents and add as individual fields
+                    JsonNode inspireObject = fieldValue.get("inspireObject");
+                    objectNode.remove(fieldName);
+                    Iterator<String> inspireFieldNames = inspireObject.fieldNames();
+                    while (inspireFieldNames.hasNext()) {
+                        String inspireFieldName = inspireFieldNames.next();
+                        JsonNode inspireFieldValue = inspireObject.get(inspireFieldName);
+                        objectNode.set(inspireFieldName, inspireFieldValue);
+                    }
+                } else if (fieldValue.isObject() || fieldValue.isArray()) {
+                    removeInspireObject(fieldValue);
                 }
-            ]
+            }
+        } else if (node.isArray()) {
+            for (JsonNode childNode : node) {
+                removeInspireObject(childNode);
+            }
         }
-    },
-    "recipient": {
-        "partyType": "BLNGD",
-        "preferredLanguage": "fr",
-        "type": "custom-recipient"
     }
-}
