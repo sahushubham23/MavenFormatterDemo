@@ -13,12 +13,12 @@ public static void transformJson(JSONObject jsonObject) {
                 }
             }
             if (levelObject.has("level")) {
-                transformJson(levelObject);
+                JSONArray nestedLevelArray = levelObject.getJSONArray("level");
+                for (int j = 0; j < nestedLevelArray.length(); j++) {
+                    JSONObject nestedLevelObject = nestedLevelArray.getJSONObject(j);
+                    transformJson(nestedLevelObject);
+                }
             }
         }
     }
 }
-
-JSONObject json = new JSONObject(yourJsonString);
-JsonTransformer.transform(json);
-System.out.println(json.toString());
