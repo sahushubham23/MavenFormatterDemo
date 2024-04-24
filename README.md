@@ -37,6 +37,10 @@ public class Main {
                     JSONObject newObject = new JSONObject();
                     mergeJSONObject(newObject, innerVariables);
                     mergeJSONObject(newObject, innerArrays);
+                    if (newObject.has("TypeOfProduct")) {
+                        Object level = newObject.remove("level");
+                        newObject.put("level", level);
+                    }
                     jsonArray.put(newObject);
                 });
                 variables.put(key, jsonArray);
@@ -57,5 +61,15 @@ public class Main {
                 e.printStackTrace();
             }
         });
+    }
+
+    private static void mergeJSONObject(JSONObject target, JSONArray source) {
+        for (int i = 0; i < source.length(); i++) {
+            try {
+                target.put(Integer.toString(i), source.get(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
