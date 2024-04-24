@@ -37,9 +37,10 @@ public class Main {
                     JSONObject newObject = new JSONObject();
                     mergeJSONObject(newObject, innerVariables);
                     mergeJSONObject(newObject, innerArrays);
-                    if (newObject.has("TypeOfProduct")) {
+                    String dynamicVariableName = getDynamicVariableName(newObject);
+                    if (dynamicVariableName != null) {
                         Object level = newObject.remove("level");
-                        newObject.put("level", level);
+                        newObject.put(dynamicVariableName, level);
                     }
                     jsonArray.put(newObject);
                 });
@@ -66,10 +67,34 @@ public class Main {
     private static void mergeJSONObject(JSONObject target, JSONArray source) {
         for (int i = 0; i < source.length(); i++) {
             try {
-                target.put(Integer.toString(i), source.get(i));
+                Object obj = source.get(i);
+                if (obj instanceof JSONObject) {
+                    JSONObject subObject = (JSONObject) obj;
+                    subObject.keySet().forEach(subKey -> {
+                        Object subValue = subObject.opt(subKey);
+                        try {
+                            target.put(subKey, subValue);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    target.put(Integer.toString(i), obj);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static String getDynamicVariableName(JSONObject object) {
+        String dynamicVariableName = null;
+        for (String key : object.keySet()) {
+            if (!key.equals("level")) {
+                dynamicVariableName = key;
+                break;
+            }
+        }
+        return dynamicVariableName;
     }
 }
