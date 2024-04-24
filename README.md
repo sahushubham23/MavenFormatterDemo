@@ -1,73 +1,97 @@
 {
-			"level": [
-				{
-					"inspireTransformVar": {
-						"TypeOfOperation": "New"
-					},
-					"level": [
-						{
-							"inspireTransformVar": {
-								"TypeOfProduct": "Advances in Euro",
-								"TypeOfOperation": "Expenses in Euro"
-							},
-							"level": [
-								{
-									"inspireTransformVar": {
-										"TypeOfOperation": "New"
-									},
-									"level": [
-										{}
-									]
-								},
-								{
-									"inspireTransformVar": {
-										"TypeOfOperation": "New"
-									},
-									"level": [
-										{
-											"inspireTransformVar": {
-												"TypeOfOperation": "New"
-											}
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			]
-		}
+            "level": [
+                {
+                    "TypeOfDocument": "ContractLetter"
+                    "level": [
+                        {
+                            "inspireTransformObject": {
+                                "TypeOfOperation": "New"
+                            },
+                            "level": [
+                                {
+                                    "inspireTransformObject": {
+                                        "TypeOfProduct": "Cash credit in Euro"
+                                    },
+                                    "level": [
+                                        {}
+                                    ]
+                                },
+                                {
+                                    "inspireTransformObject": {
+                                        "TypeOfProduct": "Cash credit in foreign currencies"
+                                    },
+                                    "level": [
+                                        {}
+                                    ]
+                                },
+                                {
+                                    "level": [
+                                        {
+                                            "inspireTransformObject": {
+                                                "ContractSection": "Introduction"
+                                            },
+                                            "level": [
+                                                {
+                                                    "inspireTransformObject": {
+                                                        "TypeOfOperationLev5": "Increase"
+                                                    },
+                                                    "level": [
+                                                        {}
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
 
 
   ----------------------------------------------------
 
-  {
-			"level": [
-				{
-						"TypeOfOperation": "New",
-					"level": [
-						{
-								"TypeOfProduct": "Advances in Euro",
-								"TypeOfOperation": "Expenses in Euro",
-							"level": [
-								{
-										"TypeOfOperation": "New",
-									"level": [
-										{}
-									]
-								},
-								{
-										"ContractSection": "Introduction",
-									"level": [
-										{
-												 "TypeOfOperationLev5": "Increase",
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			]
-		}
+ {
+            "level": [
+                {
+                    "TypeOfDocument": "ContractLetter"
+                    "level": [
+                        {
+                                "TypeOfOperation": "New",
+                            "level": [
+                                {
+                                        "TypeOfProduct": "Cash credit in Euro",
+                                    "level": [
+                                        {}
+                                    ]
+                                },
+                                {
+                                        "TypeOfProduct": "Cash credit in foreign currencies",
+                                    "level": [
+                                        {}
+                                    ]
+                                },
+                                {
+                                    "level": [
+                                        {
+                                                "ContractSection": "Introduction",
+                                            "level": [
+                                                {
+                                                        "TypeOfOperationLev5": "Increase",
+                                                    "level": [
+                                                        {}
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
