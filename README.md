@@ -70,14 +70,7 @@ public class Main {
                 Object obj = source.get(i);
                 if (obj instanceof JSONObject) {
                     JSONObject subObject = (JSONObject) obj;
-                    subObject.keySet().forEach(subKey -> {
-                        Object subValue = subObject.opt(subKey);
-                        try {
-                            target.put(subKey, subValue);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    });
+                    mergeJSONObject(target, subObject);
                 } else {
                     target.put(Integer.toString(i), obj);
                 }
