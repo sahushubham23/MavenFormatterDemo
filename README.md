@@ -26,28 +26,36 @@ public class Main {
     }
 
     private static void extractVariablesAndArrays(JSONObject jsonObject, JSONObject variables, JSONArray arrays) {
-        for (String key : jsonObject.keySet()) {
-            Object value = jsonObject.get(key);
+        jsonObject.keySet().forEach(key -> {
+            Object value = jsonObject.opt(key);
             if (value instanceof JSONArray) {
-                for (int i = 0; i < ((JSONArray) value).length(); i++) {
-                    JSONObject innerObject = ((JSONArray) value).getJSONObject(i);
+                JSONArray jsonArray = new JSONArray();
+                ((JSONArray) value).forEach(innerObject -> {
                     JSONObject innerVariables = new JSONObject();
                     JSONArray innerArrays = new JSONArray();
-                    extractVariablesAndArrays(innerObject, innerVariables, innerArrays);
-                    arrays.put(new JSONObject().put(key, innerArrays));
-                    mergeJSONObject(variables, innerVariables);
-                }
+                    extractVariablesAndArrays((JSONObject) innerObject, innerVariables, innerArrays);
+                    JSONObject newObject = new JSONObject();
+                    mergeJSONObject(newObject, innerVariables);
+                    mergeJSONObject(newObject, innerArrays);
+                    jsonArray.put(newObject);
+                });
+                variables.put(key, jsonArray);
             } else if (value instanceof JSONObject) {
                 extractVariablesAndArrays((JSONObject) value, variables, arrays);
             } else {
                 variables.put(key, value);
             }
-        }
+        });
     }
 
     private static void mergeJSONObject(JSONObject target, JSONObject source) {
-        for (String key : source.keySet()) {
-            target.put(key, source.get(key));
-        }
+        source.keySet().forEach(key -> {
+            Object value = source.opt(key);
+            try {
+                target.put(key, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
