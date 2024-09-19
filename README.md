@@ -11,33 +11,25 @@ public class ExtractData {
             String line;
             boolean isInsideBlock = false;
             StringBuilder blockData = new StringBuilder();
-            int starCount = 0;
-            String variableName = "";
-
+            
             while ((line = reader.readLine()) != null) {
-                // Check for starting pattern with 32 stars
-                if (line.startsWith("********************************") && line.length() == 32) {
-                    // Starting a new block
-                    isInsideBlock = true;
-                    blockData = new StringBuilder(); // Reset block data
-                    starCount = 32;
-                    continue; // Move to the next line to get the variable name
+                // Check for starting pattern with exactly 32 stars
+                if (line.trim().equals("********************************")) {
+                    isInsideBlock = true; // Start of a new block
+                    blockData = new StringBuilder(); // Reset the block data for new block
+                    blockData.append(line).append("\n"); // Add the 32-star line to the block
+                    continue; // Go to the next line to get content
                 }
-
-                // If we are inside a block, collect data
+                
+                // If we're inside a block, collect the content
                 if (isInsideBlock) {
-                    // Check if this is the variable line
-                    if (line.matches(".*[a-zA-Z]\\d+[a-zA-Z]\\d+.*")) {
-                        variableName = line.trim();
-                        blockData.append(variableName).append("\n");
-                    } else if (line.startsWith("*********************************") && line.length() == 33) {
-                        // Closing 33 stars block
-                        starCount = 33;
-                        isInsideBlock = false;
-                        blockData.append(line).append("\n");
-                        extractedData.add(blockData.toString()); // Store the block
+                    // If we find the closing 33 stars, end the block
+                    if (line.trim().equals("*********************************")) {
+                        blockData.append(line).append("\n"); // Add the 33-star line to the block
+                        extractedData.add(blockData.toString()); // Save the block
+                        isInsideBlock = false; // End block
                     } else {
-                        // Append the content between stars
+                        // Collect lines between stars
                         blockData.append(line).append("\n");
                     }
                 }
@@ -47,8 +39,13 @@ public class ExtractData {
         }
 
         // Print all extracted blocks (or process further)
-        for (String data : extractedData) {
-            System.out.println(data);
+        if (extractedData.isEmpty()) {
+            System.out.println("No blocks were found.");
+        } else {
+            for (String data : extractedData) {
+                System.out.println("Extracted Block:");
+                System.out.println(data);
+            }
         }
     }
 }
