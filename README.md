@@ -1,44 +1,44 @@
 import java.io.*;
+import java.util.regex.*;
 import java.util.*;
 
 public class ExtractData {
 
     public static void main(String[] args) {
-        String filePath = "/mnt/data/file-xXTbWZv4LmwOMyWFRqlphBsZ";  // Adjust to your file path
+        String filePath = "/mnt/data/file-xXTbWZv4LmwOMyWFRqlphBsZ";  // Path to the file
         List<String> extractedData = new ArrayList<>();
+        
+        // Regular expression to detect lines with 32 stars, variable name, and 33 stars
+        String patternString = "(\\*{32})(.*?)\\*{33}";
+        Pattern pattern = Pattern.compile(patternString);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
-            boolean isInsideBlock = false;
-            StringBuilder blockData = new StringBuilder();
-            
             while ((line = reader.readLine()) != null) {
-                // Check for starting pattern with exactly 32 stars
-                if (line.trim().equals("********************************")) {
-                    isInsideBlock = true; // Start of a new block
-                    blockData = new StringBuilder(); // Reset the block data for new block
-                    blockData.append(line).append("\n"); // Add the 32-star line to the block
-                    continue; // Go to the next line to get content
-                }
+                Matcher matcher = pattern.matcher(line);
                 
-                // If we're inside a block, collect the content
-                if (isInsideBlock) {
-                    // If we find the closing 33 stars, end the block
-                    if (line.trim().equals("*********************************")) {
-                        blockData.append(line).append("\n"); // Add the 33-star line to the block
-                        extractedData.add(blockData.toString()); // Save the block
-                        isInsideBlock = false; // End block
-                    } else {
-                        // Collect lines between stars
-                        blockData.append(line).append("\n");
-                    }
+                // Check if the line matches the pattern
+                if (matcher.find()) {
+                    // Extract the variable name from between the stars
+                    String variableName = matcher.group(2).trim();
+                    
+                    // Extract the content/data after the 33 stars
+                    String remainingData = line.substring(matcher.end()).trim();
+                    
+                    // Build and store the extracted data
+                    StringBuilder blockData = new StringBuilder();
+                    blockData.append("Variable Name: ").append(variableName).append("\n");
+                    blockData.append("Data: ").append(remainingData).append("\n");
+
+                    // Store the block
+                    extractedData.add(blockData.toString());
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Print all extracted blocks (or process further)
+        // Output all extracted blocks
         if (extractedData.isEmpty()) {
             System.out.println("No blocks were found.");
         } else {
