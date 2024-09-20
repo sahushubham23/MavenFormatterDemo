@@ -34,6 +34,10 @@ public class ExtractData {
 
                     // Append any data that might exist on the same line after the 33 stars
                     String remainingData = line.substring(matcher.end()).trim();
+
+                    // Remove occurrences of "&V***" from the remaining data
+                    remainingData = remainingData.replace("&V***", "").trim();
+
                     if (!remainingData.isEmpty()) {
                         blockData.append(remainingData).append("\n");
                     }
@@ -43,7 +47,13 @@ public class ExtractData {
                 } 
                 // If we are inside a block and there's no new pattern, append the line to the block data
                 else if (isInsideBlock) {
-                    blockData.append(line).append("\n");
+                    // Remove occurrences of "&V***" from each line before appending
+                    line = line.replace("&V***", "").trim();
+                    
+                    // Only append if there's remaining content after removal
+                    if (!line.isEmpty()) {
+                        blockData.append(line).append("\n");
+                    }
                 }
             }
 
