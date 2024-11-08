@@ -1,1 +1,103 @@
-{"variableMap":{"MAIL":test","NAAM":"","REFBANK":"","DATUM":"","COMPTE":"","NOMSIEGE":"","ADRESSIEGE":"","REFBBL":"","TELEFOON":"","ADRES":"","LOCALIT":"","LOCALSIEGE":"","TITRE":"","ANCIENMONTAN":"","NOMMODE1":"","NOMMODE2":"","TAUXCC1":"","TAUXBASE":"","C101B11":"","C101B12":"","C1021":"","C1022":""},"level":[{"menu":5,"option":0,"paraId1":102649,"level":[{"menu":103565,"option":0,"paraId1":103588,"level":[{"menu":103587,"option":0,"paraId1":103782,"level":[]},{"menu":103587,"option":14,"level":[{"menu":102684,"option":0,"level":[{"menu":102798,"option":5,"paraId1":103720,"level":[]}]},{"menu":102684,"option":1,"level":[{"menu":103383,"option":1,"paraId1":103369,"level":[]}]},{"menu":102684,"option":2,"paraId1":4235,"level":[{"menu":102695,"option":0,"level":[{"menu":103192,"option":0,"level":[{"menu":103231,"option":1,"paraId1":4241,"level":[]}]}]}]},{"menu":102684,"option":3,"paraId1":102865,"level":[{"menu":60289,"option":0,"paraId1":103138,"level":[]}]},{"menu":102684,"option":4,"paraId1":4043,"level":[{"menu":102946,"option":1,"level":[{"menu":59349,"option":0,"level":[{"menu":1730,"option":1,"paraId1":59696,"paraId2":59805,"level":[]},{"menu":1730,"option":6,"paraId1":59707,"paraId2":59805,"level":[]},{"menu":1730,"option":14,"level":[]}]},{"menu":59349,"option":9,"level":[]}]}]},{"menu":102684,"option":5,"paraId1":102813,"level":[{"menu":102819,"option":3,"level":[]}]},{"menu":102684,"option":6,"paraId1":5402,"paraId2":103937,"paraId3":103410,"level":[{"menu":103240,"option":8,"level":[]}]},{"menu":102684,"option":7,"level":[{"menu":103224,"option":8,"level":[]}]}]}]}]}]}
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Constraint(validatedBy = MapValuePatternValidator.class)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidMapValues {
+    String regexp();
+    String message() default "Invalid map value";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+
+
+-------------------------
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+public class MapValuePatternValidator implements ConstraintValidator<ValidMapValues, Map<String, String>> {
+
+    private Pattern pattern;
+
+    @Override
+    public void initialize(ValidMapValues constraintAnnotation) {
+        this.pattern = Pattern.compile(constraintAnnotation.regexp());
+    }
+
+    @Override
+    public boolean isValid(Map<String, String> map, ConstraintValidatorContext context) {
+        if (map == null) {
+            return true; // Consider null as valid; adjust if needed
+        }
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            String value = entry.getValue();
+            if (value != null && !pattern.matcher(value).matches()) {
+                return false; // Fails if any value doesn’t match
+            }
+        }
+
+        return true; // All values match the pattern
+    }
+}
+
+
+-------------------------------
+
+public class ApiRequestPayload {
+
+    @ValidMapValues(regexp = "^[a-zA-Z0-9]*$", message = "Each value in variableMap must be alphanumeric")
+    private Map<String, String> variableMap;
+
+    private List<Level> level;
+
+    // Getters and setters
+}
+
+
+-------------------
+
+public class Level {
+
+    @NotNull
+    private Integer menu;
+
+    @NotNull
+    private Integer option;
+
+    private Integer paraId1;
+    private Integer paraId2;
+    private Integer paraId3;
+
+    @Valid // Ensure nested levels are also validated
+    private List<Level> level;
+
+    // Getters and setters
+}
+
+
+-------------------------
+
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+
+@RestController
+public class ApiController {
+
+    @PostMapping("/validatePayload")
+    public String validatePayload(@Valid @RequestBody ApiRequestPayload payload) {
+        // Process validated payload
+        return "Validation passed!";
+    }
+}
