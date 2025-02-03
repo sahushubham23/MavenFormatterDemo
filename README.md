@@ -1,21 +1,100 @@
-^(?!.*\b(?:http|https|ftp|www|:\/\/)\b)[a-zA-Z0-9\s./-]*$
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-^(?!.*\b(?:http|https|ftp|www|:\/\/)\b)[a-zA-Z0-9\s./-]*$
-^(?!.*\b(?:http|https|ftp|www|:\/\/)\b)[a-zA-Z0-9\s./-]*$
+@Entity
+@Getter
+@Setter
+@Table(name = "gdsdbmenu")
+public class GdsDbMenu {
 
-(?!.*\\b(?:http|https|ftp|www|:\\/\\/)\\b)[a-zA-Z0-9\\s./-]+$
+    @Id
+    @Column(name = "rootid", nullable = false, updatable = false)
+    private Long rootId;
 
-^(?!.*\b(?:http|https|ftp|www|:\/\/)\b)[a-zA-Z0-9\s.-]*$
+    @Column(name = "column1")
+    private String column1;
 
-^(?!.*\b(?:http|https|ftp|www|:\/\/)[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}\b)[a-zA-Z0-9\s\.\-\u00C0-\u00FF]*$
+    @Column(name = "column2")
+    private String column2;
 
-^(?!.*\b(?:http|https|ftp|www|:\/\/)[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}\b)[a-zA-Z0-9\s\.,\-\u00C0-\u00FF]*$
+    @Column(name = "column3")
+    private String column3;
 
-^(?!.*\b(?:http|https|ftp|www|:\/\/)[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}\b)[a-zA-Z0-9\s\.,\-\u00C0-\u00FF]+$
+    @Column(name = "column4")
+    private String column4;
 
-^(?!.*<\s*a\s+[^>]*href\s*=\s*["']?(https?:\/\/[^\s'"]+)[^>]*>)(?!.*\b(?:http|https|ftp|www|:\/\/)[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}\b)[a-zA-Z0-9\s\.,\-\u00C0-\u00FF]+$
+    @Column(name = "column5")
+    private String column5;
+}
 
-^(?!.*<\s*a\s+[^>]*href\s*=\s*["']?(https?:\/\/[^\s'"]+)[^>]*>)(?!.*\b(?:http|https|ftp|www|:\/\/)[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}\b)[a-zA-Z0-9\s\.,\-\u00C0-\u00FF]+$
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface GdsDbMenuRepository extends JpaRepository<GdsDbMenu, Long> {
+}
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
+
+@Service
+public class GdsDbMenuService {
+
+    private final GdsDbMenuRepository gdsDbMenuRepository;
+
+    public GdsDbMenuService(GdsDbMenuRepository gdsDbMenuRepository) {
+        this.gdsDbMenuRepository = gdsDbMenuRepository;
+    }
+
+    @Transactional
+    public GdsDbMenu saveOrUpdateMenu(GdsDbMenu menu) {
+        return gdsDbMenuRepository.save(menu);
+    }
+
+    public Optional<GdsDbMenu> getMenuByRootId(Long rootId) {
+        return gdsDbMenuRepository.findById(rootId);
+    }
+}
 
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/gdsdbmenu")
+public class GdsDbMenuController {
+
+    private final GdsDbMenuService gdsDbMenuService;
+
+    public GdsDbMenuController(GdsDbMenuService gdsDbMenuService) {
+        this.gdsDbMenuService = gdsDbMenuService;
+    }
+
+    // Insert or update a record
+    @PostMapping("/save")
+    public ResponseEntity<GdsDbMenu> saveOrUpdate(@RequestBody GdsDbMenu menu) {
+        GdsDbMenu savedMenu = gdsDbMenuService.saveOrUpdateMenu(menu);
+        return ResponseEntity.ok(savedMenu);
+    }
+
+    // Fetch a record by rootId
+    @GetMapping("/{rootId}")
+    public ResponseEntity<GdsDbMenu> getByRootId(@PathVariable Long rootId) {
+        Optional<GdsDbMenu> menu = gdsDbMenuService.getMenuByRootId(rootId);
+        return menu.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+}
+
+{
+  "rootId": 1,
+  "column1": "Value1",
+  "column2": "Value2",
+  "column3": "Value3",
+  "column4": "Value4",
+  "column5": "Value5"
+}
 
