@@ -212,4 +212,10 @@ DELETE /api/gdsmenuchoice/1/5
 
 DELETE /api/gdsmenuchoice/1
 
+// Sort by gdsmuchorder
+        choices.sort(Comparator.comparing(GdsMenuChoice::getGdsmuchorder));
+
+        // Reassign order if gaps exist
+        IntStream.range(0, choices.size()).forEach(i -> choices.get(i).setGdsmuchorder(i + 1));
+
 
