@@ -219,3 +219,4 @@ DELETE /api/gdsmenuchoice/1
         IntStream.range(0, choices.size()).forEach(i -> choices.get(i).setGdsmuchorder(i + 1));
 
 
+^(?!.*(?i)<a\\s*=\\s*https?://).*
