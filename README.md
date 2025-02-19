@@ -220,3 +220,216 @@ DELETE /api/gdsmenuchoice/1
 
 
 ^(?!.*(?i)<a\\s*=\\s*https?://).*
+
+----------------------------------------------------------------
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdsccminspirelookup")
+@Data
+public class GdsCcmInspireLookup {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust if necessary
+    private Long id; // Add a primary key if not already present
+
+    @Column(nullable = false)
+    private Integer menunr;
+
+    @Column(nullable = false)
+    private Integer optionnr;
+
+    @Column(nullable = false)
+    private String varname;
+
+    @Column(nullable = false)
+    private String varvalue;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsCcmInspireLookupRepository extends JpaRepository<GdsCcmInspireLookup, Long> {
+
+    List<GdsCcmInspireLookup> findByMenunrAndOptionnr(Integer menunr, Integer optionnr);
+
+    void deleteByMenunrAndOptionnr(Integer menunr, Integer optionnr);
+
+    void deleteByMenunrInAndOptionnrIn(List<Integer> menunr, List<Integer> optionnr);
+}
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+public class GdsCcmInspireLookupService {
+
+    private final GdsCcmInspireLookupRepository repository;
+
+    public GdsCcmInspireLookupService(GdsCcmInspireLookupRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsCcmInspireLookup saveOrUpdate(GdsCcmInspireLookup entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsCcmInspireLookup> bulkSaveOrUpdate(List<GdsCcmInspireLookup> entities) {
+        return repository.saveAll(entities);
+    }
+
+    @Transactional
+    public void deleteByMenunrAndOptionnr(Integer menunr, Integer optionnr) {
+        repository.deleteByMenunrAndOptionnr(menunr, optionnr);
+    }
+
+    @Transactional
+    public void deleteByMenunrAndOptionnrList(List<Integer> menunrList, List<Integer> optionnrList) {
+        repository.deleteByMenunrInAndOptionnrIn(menunrList, optionnrList);
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/inspirelookup")
+public class GdsCcmInspireLookupController {
+
+    private final GdsCcmInspireLookupService service;
+
+    public GdsCcmInspireLookupController(GdsCcmInspireLookupService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsCcmInspireLookup> saveOrUpdate(@RequestBody GdsCcmInspireLookup entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsCcmInspireLookup>> bulkSaveOrUpdate(@RequestBody List<GdsCcmInspireLookup> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteByMenunrAndOptionnr(@RequestParam Integer menunr, @RequestParam Integer optionnr) {
+        service.deleteByMenunrAndOptionnr(menunr, optionnr);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/deleteBulk")
+    public ResponseEntity<Void> deleteByMenunrAndOptionnrList(@RequestBody List<DeleteRequest> deleteRequests) {
+        List<Integer> menunrList = deleteRequests.stream().map(DeleteRequest::getMenunr).toList();
+        List<Integer> optionnrList = deleteRequests.stream().map(DeleteRequest::getOptionnr).toList();
+        service.deleteByMenunrAndOptionnrList(menunrList, optionnrList);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+class DeleteRequest {
+    private Integer menunr;
+    private Integer optionnr;
+    
+    public Integer getMenunr() {
+        return menunr;
+    }
+    
+    public Integer getOptionnr() {
+        return optionnr;
+    }
+}
+
+
+POST /api/inspirelookup/save
+Content-Type: application/json
+
+{
+    "menunr": 1,
+    "optionnr": 2,
+    "varname": "example",
+    "varvalue": "value"
+}
+
+
+POST /api/inspirelookup/saveAll
+Content-Type: application/json
+
+[
+    {
+        "menunr": 1,
+        "optionnr": 2,
+        "varname": "example1",
+        "varvalue": "value1"
+    },
+    {
+        "menunr": 3,
+        "optionnr": 4,
+        "varname": "example2",
+        "varvalue": "value2"
+    }
+]
+
+
+DELETE /api/inspirelookup/delete?menunr=1&optionnr=2
+
+
+DELETE /api/inspirelookup/deleteBulk
+Content-Type: application/json
+
+[
+    { "menunr": 1, "optionnr": 2 },
+    { "menunr": 3, "optionnr": 4 }
+]
+
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class GdsCcmInspireLookupService {
+
+    private final GdsCcmInspireLookupRepository repository;
+
+    public GdsCcmInspireLookupService(GdsCcmInspireLookupRepository repository) {
+        this.repository = repository;
+    }
+
+    public List<GdsCcmInspireLookup> getAllRecords() {
+        return repository.findAll();
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/inspirelookup")
+public class GdsCcmInspireLookupController {
+
+    private final GdsCcmInspireLookupService service;
+
+    public GdsCcmInspireLookupController(GdsCcmInspireLookupService service) {
+        this.service = service;
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<GdsCcmInspireLookup>> getAllRecords() {
+        return ResponseEntity.ok(service.getAllRecords());
+    }
+}
+
+GET /api/inspirelookup/all
+
