@@ -432,4 +432,339 @@ public class GdsCcmInspireLookupController {
 }
 
 GET /api/inspirelookup/all
+-------------------------------------------------------------
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdstext")
+@Data
+public class GdsText {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust if necessary
+    private Long id; // Primary key (If not present in DB, adjust accordingly)
+
+    @Column(nullable = false)
+    private Integer rootid;
+
+    @Column(nullable = false)
+    private String gdstextname;
+
+    @Column(nullable = false)
+    private String gdstextlanguage;
+
+    @Column(nullable = false)
+    private String gdstextvalue;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsTextRepository extends JpaRepository<GdsText, Long> {
+
+    List<GdsText> findByRootid(Integer rootid);
+
+    void deleteByRootid(Integer rootid);
+}
+
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+public class GdsTextService {
+
+    private final GdsTextRepository repository;
+
+    public GdsTextService(GdsTextRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsText saveOrUpdate(GdsText entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsText> bulkSaveOrUpdate(List<GdsText> entities) {
+        return repository.saveAll(entities);
+    }
+
+    public List<GdsText> getByRootid(Integer rootid) {
+        return repository.findByRootid(rootid);
+    }
+
+    @Transactional
+    public void deleteByRootid(Integer rootid) {
+        repository.deleteByRootid(rootid);
+    }
+
+    @Transactional
+    public void deleteByRootidList(List<Integer> rootidList) {
+        for (Integer rootid : rootidList) {
+            repository.deleteByRootid(rootid);
+        }
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/gdstext")
+public class GdsTextController {
+
+    private final GdsTextService service;
+
+    public GdsTextController(GdsTextService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsText> saveOrUpdate(@RequestBody GdsText entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsText>> bulkSaveOrUpdate(@RequestBody List<GdsText> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<GdsText>> getByRootid(@RequestParam Integer rootid) {
+        return ResponseEntity.ok(service.getByRootid(rootid));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteByRootid(@RequestParam Integer rootid) {
+        service.deleteByRootid(rootid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/deleteBulk")
+    public ResponseEntity<Void> deleteByRootidList(@RequestBody List<Integer> rootidList) {
+        service.deleteByRootidList(rootidList);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+
+POST /api/gdstext/save
+Content-Type: application/json
+
+{
+    "rootid": 100,
+    "gdstextname": "Sample Text",
+    "gdstextlanguage": "EN",
+    "gdstextvalue": "This is a sample value"
+}
+
+
+POST /api/gdstext/saveAll
+Content-Type: application/json
+
+[
+    {
+        "rootid": 101,
+        "gdstextname": "Text A",
+        "gdstextlanguage": "EN",
+        "gdstextvalue": "Value A"
+    },
+    {
+        "rootid": 102,
+        "gdstextname": "Text B",
+        "gdstextlanguage": "FR",
+        "gdstextvalue": "Valeur B"
+    }
+]
+
+
+GET /api/gdstext/get?rootid=100
+
+DELETE /api/gdstext/delete?rootid=100
+
+DELETE /api/gdstext/deleteBulk
+Content-Type: application/json
+
+[100, 101, 102]
+
+
+----------------------------------------------
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdsccmparatextlookup")
+@Data
+public class GdsCcmParaTextLookup {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust if necessary
+    private Long id; // Add a primary key if not already present
+
+    @Column(nullable = false)
+    private Integer paraid;
+
+    @Column(nullable = false)
+    private String paratexten;
+
+    @Column(nullable = false)
+    private String paratextfr;
+
+    @Column(nullable = false)
+    private String paratextdu;
+
+    @Column(nullable = false)
+    private String paratextge;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsCcmParaTextLookupRepository extends JpaRepository<GdsCcmParaTextLookup, Long> {
+
+    List<GdsCcmParaTextLookup> findByParaid(Integer paraid);
+
+    void deleteByParaid(Integer paraid);
+}
+
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+public class GdsCcmParaTextLookupService {
+
+    private final GdsCcmParaTextLookupRepository repository;
+
+    public GdsCcmParaTextLookupService(GdsCcmParaTextLookupRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsCcmParaTextLookup saveOrUpdate(GdsCcmParaTextLookup entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsCcmParaTextLookup> bulkSaveOrUpdate(List<GdsCcmParaTextLookup> entities) {
+        return repository.saveAll(entities);
+    }
+
+    public List<GdsCcmParaTextLookup> getByParaid(Integer paraid) {
+        return repository.findByParaid(paraid);
+    }
+
+    @Transactional
+    public void deleteByParaid(Integer paraid) {
+        repository.deleteByParaid(paraid);
+    }
+
+    @Transactional
+    public void deleteByParaidList(List<Integer> paraidList) {
+        for (Integer paraid : paraidList) {
+            repository.deleteByParaid(paraid);
+        }
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/paratextlookup")
+public class GdsCcmParaTextLookupController {
+
+    private final GdsCcmParaTextLookupService service;
+
+    public GdsCcmParaTextLookupController(GdsCcmParaTextLookupService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsCcmParaTextLookup> saveOrUpdate(@RequestBody GdsCcmParaTextLookup entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsCcmParaTextLookup>> bulkSaveOrUpdate(@RequestBody List<GdsCcmParaTextLookup> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<GdsCcmParaTextLookup>> getByParaid(@RequestParam Integer paraid) {
+        return ResponseEntity.ok(service.getByParaid(paraid));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteByParaid(@RequestParam Integer paraid) {
+        service.deleteByParaid(paraid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/deleteBulk")
+    public ResponseEntity<Void> deleteByParaidList(@RequestBody List<Integer> paraidList) {
+        service.deleteByParaidList(paraidList);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+
+POST /api/paratextlookup/save
+Content-Type: application/json
+
+{
+    "paraid": 1,
+    "paratexten": "Sample Text EN",
+    "paratextfr": "Exemple Texte FR",
+    "paratextdu": "Voorbeeldtekst DU",
+    "paratextge": "Beispieltext GE"
+}
+
+
+POST /api/paratextlookup/saveAll
+Content-Type: application/json
+
+[
+    {
+        "paraid": 2,
+        "paratexten": "Text A EN",
+        "paratextfr": "Texte A FR",
+        "paratextdu": "Tekst A DU",
+        "paratextge": "Text A GE"
+    },
+    {
+        "paraid": 3,
+        "paratexten": "Text B EN",
+        "paratextfr": "Texte B FR",
+        "paratextdu": "Tekst B DU",
+        "paratextge": "Text B GE"
+    }
+]
+
+
+GET /api/paratextlookup/get?paraid=1
+
+
+DELETE /api/paratextlookup/delete?paraid=1
+
+
+DELETE /api/paratextlookup/deleteBulk
+Content-Type: application/json
+
+[1, 2, 3]
+
 
