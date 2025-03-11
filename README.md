@@ -767,4 +767,155 @@ Content-Type: application/json
 
 [1, 2, 3]
 
+-------------------------------------------
+
+import jakarta.persistence.Embeddable;
+import lombok.Data;
+import java.io.Serializable;
+
+@Embeddable
+@Data
+public class GdsCcmDefaultVariableLookupId implements Serializable {
+    private Integer corpkey;
+    private String varname;
+}
+
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdsccmdefaultvariablelookup")
+@Data
+public class GdsCcmDefaultVariableLookup {
+
+    @EmbeddedId
+    private GdsCcmDefaultVariableLookupId id;
+
+    @Column(nullable = false)
+    private String varvalueen;
+
+    @Column(nullable = false)
+    private String varvaluefr;
+
+    @Column(nullable = false)
+    private String varvaluege;
+
+    @Column(nullable = false)
+    private String varvaluedu;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsCcmDefaultVariableLookupRepository extends JpaRepository<GdsCcmDefaultVariableLookup, GdsCcmDefaultVariableLookupId> {
+
+    List<GdsCcmDefaultVariableLookup> findByIdCorpkey(Integer corpkey);
+}
+
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class GdsCcmDefaultVariableLookupService {
+
+    private final GdsCcmDefaultVariableLookupRepository repository;
+
+    public GdsCcmDefaultVariableLookupService(GdsCcmDefaultVariableLookupRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsCcmDefaultVariableLookup saveOrUpdate(GdsCcmDefaultVariableLookup entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsCcmDefaultVariableLookup> bulkSaveOrUpdate(List<GdsCcmDefaultVariableLookup> entities) {
+        return repository.saveAll(entities);
+    }
+
+    public List<GdsCcmDefaultVariableLookup> getByCorpkey(Integer corpkey) {
+        return repository.findByIdCorpkey(corpkey);
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/defaultvariablelookup")
+public class GdsCcmDefaultVariableLookupController {
+
+    private final GdsCcmDefaultVariableLookupService service;
+
+    public GdsCcmDefaultVariableLookupController(GdsCcmDefaultVariableLookupService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsCcmDefaultVariableLookup> saveOrUpdate(@RequestBody GdsCcmDefaultVariableLookup entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsCcmDefaultVariableLookup>> bulkSaveOrUpdate(@RequestBody List<GdsCcmDefaultVariableLookup> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<GdsCcmDefaultVariableLookup>> getByCorpkey(@RequestParam Integer corpkey) {
+        return ResponseEntity.ok(service.getByCorpkey(corpkey));
+    }
+}
+
+
+POST /api/defaultvariablelookup/save
+Content-Type: application/json
+
+{
+    "id": {
+        "corpkey": 100,
+        "varname": "DefaultVariable"
+    },
+    "varvalueen": "Value EN",
+    "varvaluefr": "Valeur FR",
+    "varvaluege": "Wert GE",
+    "varvaluedu": "Waarde DU"
+}
+
+
+POST /api/defaultvariablelookup/saveAll
+Content-Type: application/json
+
+[
+    {
+        "id": {
+            "corpkey": 101,
+            "varname": "Variable A"
+        },
+        "varvalueen": "Value A EN",
+        "varvaluefr": "Valeur A FR",
+        "varvaluege": "Wert A GE",
+        "varvaluedu": "Waarde A DU"
+    },
+    {
+        "id": {
+            "corpkey": 102,
+            "varname": "Variable B"
+        },
+        "varvalueen": "Value B EN",
+        "varvaluefr": "Valeur B FR",
+        "varvaluege": "Wert B GE",
+        "varvaluedu": "Waarde B DU"
+    }
+]
+
+
+GET /api/defaultvariablelookup/get?corpkey=100
 
