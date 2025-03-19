@@ -919,3 +919,335 @@ Content-Type: application/json
 
 GET /api/defaultvariablelookup/get?corpkey=100
 
+------------------------------------------------------------------------------------
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdsdbvarlist")
+@Data
+public class GdsDbVarList {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Assuming rootid is unique
+    private Long rootid;
+
+    @Column(nullable = false)
+    private String gdsvarlabelfr;
+
+    @Column(nullable = false)
+    private String gdsvarlabeldu;
+
+    @Column(nullable = false)
+    private String gdsvarlabelge;
+
+    @Column(nullable = false)
+    private String gdsvarlabelen;
+
+    @Column(nullable = false)
+    private String gdsvarlformat;
+
+    @Column(nullable = false)
+    private String gdsvarlgetvalue;
+
+    @Column(nullable = false)
+    private Boolean gdsvarlmandatory;
+
+    @Column(nullable = false)
+    private Integer gdsvarlength;
+
+    @Column(nullable = false)
+    private String gdsvarlname;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsDbVarListRepository extends JpaRepository<GdsDbVarList, Long> {
+    
+    List<GdsDbVarList> findByRootid(Long rootid);
+
+    void deleteByRootid(Long rootid);
+}
+
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class GdsDbVarListService {
+
+    private final GdsDbVarListRepository repository;
+
+    public GdsDbVarListService(GdsDbVarListRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsDbVarList saveOrUpdate(GdsDbVarList entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsDbVarList> bulkSaveOrUpdate(List<GdsDbVarList> entities) {
+        return repository.saveAll(entities);
+    }
+
+    public List<GdsDbVarList> getByRootid(Long rootid) {
+        return repository.findByRootid(rootid);
+    }
+
+    public List<GdsDbVarList> getAll() {
+        return repository.findAll();
+    }
+
+    public void deleteByRootid(Long rootid) {
+        repository.deleteByRootid(rootid);
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/dbvarlist")
+public class GdsDbVarListController {
+
+    private final GdsDbVarListService service;
+
+    public GdsDbVarListController(GdsDbVarListService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsDbVarList> saveOrUpdate(@RequestBody GdsDbVarList entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsDbVarList>> bulkSaveOrUpdate(@RequestBody List<GdsDbVarList> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<GdsDbVarList>> getByRootid(@RequestParam Long rootid) {
+        return ResponseEntity.ok(service.getByRootid(rootid));
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<GdsDbVarList>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteByRootid(@RequestParam Long rootid) {
+        service.deleteByRootid(rootid);
+        return ResponseEntity.ok("Deleted successfully");
+    }
+}
+
+
+POST /api/dbvarlist/save
+Content-Type: application/json
+
+{
+    "rootid": 1,
+    "gdsvarlabelfr": "Libellé FR",
+    "gdsvarlabeldu": "Label DU",
+    "gdsvarlabelge": "Label GE",
+    "gdsvarlabelen": "Label EN",
+    "gdsvarlformat": "Format",
+    "gdsvarlgetvalue": "Value",
+    "gdsvarlmandatory": true,
+    "gdsvarlength": 10,
+    "gdsvarlname": "Var Name"
+}
+
+
+POST /api/dbvarlist/saveAll
+Content-Type: application/json
+
+[
+    {
+        "rootid": 2,
+        "gdsvarlabelfr": "Libellé FR 2",
+        "gdsvarlabeldu": "Label DU 2",
+        "gdsvarlabelge": "Label GE 2",
+        "gdsvarlabelen": "Label EN 2",
+        "gdsvarlformat": "Format 2",
+        "gdsvarlgetvalue": "Value 2",
+        "gdsvarlmandatory": false,
+        "gdsvarlength": 12,
+        "gdsvarlname": "Var Name 2"
+    },
+    {
+        "rootid": 3,
+        "gdsvarlabelfr": "Libellé FR 3",
+        "gdsvarlabeldu": "Label DU 3",
+        "gdsvarlabelge": "Label GE 3",
+        "gdsvarlabelen": "Label EN 3",
+        "gdsvarlformat": "Format 3",
+        "gdsvarlgetvalue": "Value 3",
+        "gdsvarlmandatory": true,
+        "gdsvarlength": 15,
+        "gdsvarlname": "Var Name 3"
+    }
+]
+
+
+GET /api/dbvarlist/get?rootid=1
+
+
+GET /api/dbvarlist/getAll
+
+
+DELETE /api/dbvarlist/delete?rootid=1
+
+----------------------------------------------------------------------
+
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Entity
+@Table(name = "gdstextsovarlist")
+@Data
+public class GdsTextSoVarList {
+
+    @Id
+    @Column(nullable = false)
+    private String ns_source; // Primary Key
+
+    @Column(nullable = false)
+    private String ns_dest;
+}
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface GdsTextSoVarListRepository extends JpaRepository<GdsTextSoVarList, String> {
+    
+    List<GdsTextSoVarList> findByNsSource(String nsSource);
+
+    void deleteByNsSource(String nsSource);
+}
+
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class GdsTextSoVarListService {
+
+    private final GdsTextSoVarListRepository repository;
+
+    public GdsTextSoVarListService(GdsTextSoVarListRepository repository) {
+        this.repository = repository;
+    }
+
+    public GdsTextSoVarList saveOrUpdate(GdsTextSoVarList entity) {
+        return repository.save(entity);
+    }
+
+    public List<GdsTextSoVarList> bulkSaveOrUpdate(List<GdsTextSoVarList> entities) {
+        return repository.saveAll(entities);
+    }
+
+    public List<GdsTextSoVarList> getByNsSource(String nsSource) {
+        return repository.findByNsSource(nsSource);
+    }
+
+    public List<GdsTextSoVarList> getAll() {
+        return repository.findAll();
+    }
+
+    public void deleteByNsSource(String nsSource) {
+        repository.deleteByNsSource(nsSource);
+    }
+}
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/textsovarlist")
+public class GdsTextSoVarListController {
+
+    private final GdsTextSoVarListService service;
+
+    public GdsTextSoVarListController(GdsTextSoVarListService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<GdsTextSoVarList> saveOrUpdate(@RequestBody GdsTextSoVarList entity) {
+        return ResponseEntity.ok(service.saveOrUpdate(entity));
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<List<GdsTextSoVarList>> bulkSaveOrUpdate(@RequestBody List<GdsTextSoVarList> entities) {
+        return ResponseEntity.ok(service.bulkSaveOrUpdate(entities));
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<List<GdsTextSoVarList>> getByNsSource(@RequestParam String nsSource) {
+        return ResponseEntity.ok(service.getByNsSource(nsSource));
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<GdsTextSoVarList>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteByNsSource(@RequestParam String nsSource) {
+        service.deleteByNsSource(nsSource);
+        return ResponseEntity.ok("Deleted successfully");
+    }
+}
+
+
+POST /api/textsovarlist/save
+Content-Type: application/json
+
+{
+    "ns_source": "source1",
+    "ns_dest": "destination1"
+}
+
+
+POST /api/textsovarlist/saveAll
+Content-Type: application/json
+
+[
+    {
+        "ns_source": "source2",
+        "ns_dest": "destination2"
+    },
+    {
+        "ns_source": "source3",
+        "ns_dest": "destination3"
+    }
+]
+
+
+GET /api/textsovarlist/get?nsSource=source1
+
+
+GET /api/textsovarlist/getAll
+
+
+DELETE /api/textsovarlist/delete?nsSource=source1
+
+
