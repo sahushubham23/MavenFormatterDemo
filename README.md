@@ -1,84 +1,98 @@
 @ExtendWith(MockitoExtension.class)
-class BselSurServiceImplTest {
+class BselsurServiceImplTest {
 
     @InjectMocks
-    private BselSurServiceImpl service;
+    private BselsurServiceImpl service;
 
     @Mock
-    private GarSurgrnRepository garSurgrnRepository;
+    private Gartsurgr1Repository gartsurgr1Repository;
 
     @Mock
     private MessageService messageService;
 
-    private BselSurParams params;
+    private BselsurParams bselsur;
 
     @BeforeEach
     void setUp() {
-        params = new BselSurParams();
-        params.setNdos(100L);
-        params.setCtypsur(1);
-        params.setNouvsur(2);
-        params.setCtypeve(3);
-        params.setNitv(10L);
-        params.setWcbie(5);
-        params.setFunctionname("OK");
+        bselsur = new BselsurParams();
+        bselsur.setNdos(100L);
+        bselsur.setCtypsur(1);
+        bselsur.setNouvsur(2);
+        bselsur.setCtypeve(3);
+        bselsur.setNitv(10L);
+        bselsur.setWcbie(5);
+        bselsur.setFunctionname(BSELSUR_PR_OK);
     }
 
     /**
-     * ✅ Happy path
-     * functionname = OK
-     * count > 0
+     * ✅ functionname = OK
+     * ✅ count > 0
      */
     @Test
     void createSuretyDetails_success() {
-        when(garSurgrnRepository.pdokMenValidateItem(
-                anyLong(), anyInt(), anyInt(), anyInt(), anyLong(), anyInt()
+
+        when(gartsurgr1Repository.pdokMenValidateItem(
+                bselsur.getNdos(),
+                bselsur.getCtypsur(),
+                bselsur.getNouvsur(),
+                bselsur.getCtypeve(),
+                bselsur.getNitv(),
+                bselsur.getWcbie()
         )).thenReturn(1);
 
-        Integer result = service.createSuretyDetails(params);
+        Integer result = service.createSuretyDetails(bselsur);
 
         assertEquals(1, result);
-        verify(garSurgrnRepository, times(1))
+
+        verify(gartsurgr1Repository, times(1))
                 .pdokMenValidateItem(
-                        params.getNdos(),
-                        params.getCtypsur(),
-                        params.getNouvsur(),
-                        params.getCtypeve(),
-                        params.getNitv(),
-                        params.getWcbie()
+                        bselsur.getNdos(),
+                        bselsur.getCtypsur(),
+                        bselsur.getNouvsur(),
+                        bselsur.getCtypeve(),
+                        bselsur.getNitv(),
+                        bselsur.getWcbie()
                 );
     }
 
     /**
-     * ❌ count == 0 → CREClientException
+     * ❌ functionname = OK
+     * ❌ count = 0 → exception
      */
     @Test
-    void createSuretyDetails_whenCountZero_shouldThrowException() {
-        when(garSurgrnRepository.pdokMenValidateItem(
-                anyLong(), anyInt(), anyInt(), anyInt(), anyLong(), anyInt()
+    void createSuretyDetails_countZero_throwsException() {
+
+        when(gartsurgr1Repository.pdokMenValidateItem(
+                bselsur.getNdos(),
+                bselsur.getCtypsur(),
+                bselsur.getNouvsur(),
+                bselsur.getCtypeve(),
+                bselsur.getNitv(),
+                bselsur.getWcbie()
         )).thenReturn(0);
 
         when(messageService.stdSperror(
-                any(), any(), any(), any(), any(), any()
-        )).thenReturn("ERROR");
+                any(), any(), anyInt(), isNull(), anyString(), any()
+        )).thenReturn("ERR");
 
         assertThrows(
                 CREClientException.class,
-                () -> service.createSuretyDetails(params)
+                () -> service.createSuretyDetails(bselsur)
         );
     }
 
     /**
-     * 🔁 functionname != OK
-     * repository should NOT be called
+     * 🔁 functionname ≠ OK
+     * repository must NOT be called
      */
     @Test
-    void createSuretyDetails_whenFunctionNotOk_shouldReturnNullOrZero() {
-        params.setFunctionname("NOT_OK");
+    void createSuretyDetails_functionNotOk_skipsRepository() {
 
-        Integer result = service.createSuretyDetails(params);
+        bselsur.setFunctionname("NOT_OK");
 
-        assertNull(result); // change to assertEquals(0, result) if your method returns 0
-        verifyNoInteractions(garSurgrnRepository);
+        Integer result = service.createSuretyDetails(bselsur);
+
+        assertNull(result);
+        verifyNoInteractions(gartsurgr1Repository);
     }
 }
