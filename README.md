@@ -1,152 +1,84 @@
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 @ExtendWith(MockitoExtension.class)
-class BseLsurServiceImplTest {
+class BselSurServiceImplTest {
 
     @InjectMocks
-    private BseLsurServiceImpl service;
+    private BselSurServiceImpl service;
 
     @Mock
-    private GarSurgr1Repository garSurgr1Repository;
+    private GarSurgrnRepository garSurgrnRepository;
 
-    // -------------------------
-    // POSITIVE SCENARIOS
-    // -------------------------
+    @Mock
+    private MessageService messageService;
 
-    @Test
-    void shouldReturnCount_whenValidPbOkRequestAndRecordExists() {
-        BseLsurParams params = buildValidParams();
+    private BselSurParams params;
 
-        when(garSurgr1Repository.pbOkWhenValidateItem(
-                params.getNdos(),
-                params.getCtypsur(),
-                params.getNouvsur(),
-                params.getCtypeve()))
-            .thenReturn(1);
-
-        Integer result = service.createSuretyDetails(params);
-
-        assertEquals(1, result);
-        verify(garSurgr1Repository, times(1))
-            .pbOkWhenValidateItem(100L, 1, 1, 1);
-    }
-
-    @Test
-    void shouldReturnCount_whenMultipleRecordsFound() {
-        BseLsurParams params = buildValidParams();
-
-        when(garSurgr1Repository.pbOkWhenValidateItem(any(), any(), any(), any()))
-            .thenReturn(3);
-
-        Integer result = service.createSuretyDetails(params);
-
-        assertEquals(3, result);
-    }
-
-    @Test
-    void shouldReturnCount_whenCtypeveIsTwo() {
-        BseLsurParams params = buildValidParams();
-        params.setCtypeve(2);
-
-        when(garSurgr1Repository.pbOkWhenValidateItem(any(), any(), any(), eq(2)))
-            .thenReturn(1);
-
-        Integer result = service.createSuretyDetails(params);
-
-        assertEquals(1, result);
-    }
-
-    // -------------------------
-    // NEGATIVE SCENARIOS
-    // -------------------------
-
-    @Test
-    void shouldThrowException_whenNoRecordFound() {
-        BseLsurParams params = buildValidParams();
-
-        when(garSurgr1Repository.pbOkWhenValidateItem(any(), any(), any(), any()))
-            .thenReturn(0);
-
-        assertThrows(CREClientException.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    @Test
-    void shouldNotCallRepository_whenFunctionNameIsInvalid() {
-        BseLsurParams params = buildValidParams();
-        params.setFunctionname("INVALID_FUNCTION");
-
-        Integer result = service.createSuretyDetails(params);
-
-        assertNull(result);
-        verifyNoInteractions(garSurgr1Repository);
-    }
-
-    @Test
-    void shouldThrowNullPointerException_whenFunctionNameIsNull() {
-        BseLsurParams params = buildValidParams();
-        params.setFunctionname(null);
-
-        assertThrows(NullPointerException.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    @Test
-    void shouldThrowException_whenNdosIsNull() {
-        BseLsurParams params = buildValidParams();
-        params.setNdos(null);
-
-        assertThrows(Exception.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    @Test
-    void shouldThrowException_whenCtypsurIsNull() {
-        BseLsurParams params = buildValidParams();
-        params.setCtypsur(null);
-
-        assertThrows(Exception.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    @Test
-    void shouldThrowException_whenNouvsurIsNull() {
-        BseLsurParams params = buildValidParams();
-        params.setNouvsur(null);
-
-        assertThrows(Exception.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    @Test
-    void shouldThrowException_whenCtypeveIsNull() {
-        BseLsurParams params = buildValidParams();
-        params.setCtypeve(null);
-
-        assertThrows(Exception.class,
-            () -> service.createSuretyDetails(params));
-    }
-
-    // -------------------------
-    // COMMON TEST DATA
-    // -------------------------
-
-    private BseLsurParams buildValidParams() {
-        BseLsurParams params = new BseLsurParams();
-        params.setFunctionname("BSELSUR_PB_OK");
+    @BeforeEach
+    void setUp() {
+        params = new BselSurParams();
         params.setNdos(100L);
         params.setCtypsur(1);
-        params.setNouvsur(1);
-        params.setCtypeve(1);
+        params.setNouvsur(2);
+        params.setCtypeve(3);
         params.setNitv(10L);
-        params.setWcbie(1);
-        return params;
+        params.setWcbie(5);
+        params.setFunctionname("OK");
+    }
+
+    /**
+     * ✅ Happy path
+     * functionname = OK
+     * count > 0
+     */
+    @Test
+    void createSuretyDetails_success() {
+        when(garSurgrnRepository.pdokMenValidateItem(
+                anyLong(), anyInt(), anyInt(), anyInt(), anyLong(), anyInt()
+        )).thenReturn(1);
+
+        Integer result = service.createSuretyDetails(params);
+
+        assertEquals(1, result);
+        verify(garSurgrnRepository, times(1))
+                .pdokMenValidateItem(
+                        params.getNdos(),
+                        params.getCtypsur(),
+                        params.getNouvsur(),
+                        params.getCtypeve(),
+                        params.getNitv(),
+                        params.getWcbie()
+                );
+    }
+
+    /**
+     * ❌ count == 0 → CREClientException
+     */
+    @Test
+    void createSuretyDetails_whenCountZero_shouldThrowException() {
+        when(garSurgrnRepository.pdokMenValidateItem(
+                anyLong(), anyInt(), anyInt(), anyInt(), anyLong(), anyInt()
+        )).thenReturn(0);
+
+        when(messageService.stdSperror(
+                any(), any(), any(), any(), any(), any()
+        )).thenReturn("ERROR");
+
+        assertThrows(
+                CREClientException.class,
+                () -> service.createSuretyDetails(params)
+        );
+    }
+
+    /**
+     * 🔁 functionname != OK
+     * repository should NOT be called
+     */
+    @Test
+    void createSuretyDetails_whenFunctionNotOk_shouldReturnNullOrZero() {
+        params.setFunctionname("NOT_OK");
+
+        Integer result = service.createSuretyDetails(params);
+
+        assertNull(result); // change to assertEquals(0, result) if your method returns 0
+        verifyNoInteractions(garSurgrnRepository);
     }
 }
