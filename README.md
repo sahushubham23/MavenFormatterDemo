@@ -1,29 +1,26 @@
 @ExtendWith(MockitoExtension.class)
-class Crembo03ServiceImplTest {
+class Cremb003ServiceImplTest {
 
     @InjectMocks
-    private Crembo03ServiceImpl service;
+    private Cremb003ServiceImpl service;
 
     @Mock
     private Gartsurgr1Repository gartsurgr1Repository;
-
     @Mock
     private Gartsurgr2Repository gartsurgr2Repository;
-
     @Mock
     private Gartsurgr3Repository gartsurgr3Repository;
-
     @Mock
     private Gartsurgr4Repository gartsurgr4Repository;
 
     @Spy
-    private Crembo03ServiceImpl spyService;
+    private Cremb003ServiceImpl spyService;
 
-    private Crembo03ExistCountParam param;
+    private Cremb003ExistCouche param;
 
     @BeforeEach
     void setup() {
-        param = new Crembo03ExistCountParam();
+        param = new Cremb003ExistCouche();
         param.setCtypsur(101);
         param.setNouvsur(10);
         param.setNitv(20L);
@@ -32,103 +29,61 @@ class Crembo03ServiceImplTest {
         param.setCtypeve(2);
     }
 
-    /**
-     * case 400 → gartsurgr1Repository.getExistCouche1
-     */
     @Test
-    void openWindowAction_case400() {
-
+    void case400() {
         doReturn(400).when(spyService).stdsurctypobj(101);
-        when(gartsurgr1Repository.getExistCouche1(101, 10, 30L))
-                .thenReturn(1);
+        when(gartsurgr1Repository.getExistCouche1(101, 10, 30L)).thenReturn(1);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertTrue(result);
+        assertTrue(spyService.openWindowAction(param));
     }
 
-    /**
-     * case 401 → gartsurgr2Repository
-     */
     @Test
-    void openWindowAction_case401() {
-
+    void case401() {
         doReturn(401).when(spyService).stdsurctypobj(101);
-        when(gartsurgr2Repository.getExistCouche1(101, 10, 30L))
-                .thenReturn(1);
+        when(gartsurgr2Repository.getExistCouche1(101, 10, 30L)).thenReturn(1);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertTrue(result);
+        assertTrue(spyService.openWindowAction(param));
     }
 
-    /**
-     * case 402 → gartsurgr3Repository
-     */
     @Test
-    void openWindowAction_case402() {
-
+    void case402() {
         doReturn(402).when(spyService).stdsurctypobj(101);
-        when(gartsurgr3Repository.getExistCouche1(101, 10, 30L))
-                .thenReturn(1);
+        when(gartsurgr3Repository.getExistCouche1(101, 10, 30L)).thenReturn(1);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertTrue(result);
+        assertTrue(spyService.openWindowAction(param));
     }
 
-    /**
-     * case 403 → gartsurgr4Repository
-     */
     @Test
-    void openWindowAction_case403() {
-
+    void case403() {
         doReturn(403).when(spyService).stdsurctypobj(101);
-        when(gartsurgr4Repository.getExistCouche1(101, 10, 30L))
-                .thenReturn(1);
+        when(gartsurgr4Repository.getExistCouche1(101, 10, 30L)).thenReturn(1);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertTrue(result);
+        assertTrue(spyService.openWindowAction(param));
     }
 
-    /**
-     * default → inner IF true
-     */
     @Test
-    void openWindowAction_default_innerIfTrue() {
-
+    void defaultIfTrue() {
         doReturn(null).when(spyService).stdsurctypobj(101);
-        when(gartsurgr1Repository.getExistCouche(101, 10, 20L))
-                .thenReturn(1);
+        when(gartsurgr1Repository.getExistCouche(101, 10, 20L)).thenReturn(1);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertTrue(result);
+        assertTrue(spyService.openWindowAction(param));
     }
 
-    /**
-     * default → inner IF false
-     */
     @Test
-    void openWindowAction_default_innerIfFalse() {
-
+    void defaultIfFalse() {
         doReturn(null).when(spyService).stdsurctypobj(101);
-        param.setCtypdos(Constants.YES); // breaks IF condition
+        param.setCtypdos(Constants.YES);
 
-        Boolean result = spyService.openWindowAction(param);
-
-        assertFalse(result);
+        assertFalse(spyService.openWindowAction(param));
     }
-
 }
--------------------------------
+------------------------------
 
 @ExtendWith(MockitoExtension.class)
-class BselsurServiceImplTest {
+class Cremb003ServiceImplTest {
 
     @InjectMocks
-    private BselsurServiceImpl service;
+    private Cremb003ServiceImpl service;
 
     @Mock
     private GartEnvlogRepository gartEnvlogRepository;
@@ -150,17 +105,16 @@ class BselsurServiceImplTest {
     @BeforeEach
     void setup() {
         tenvlog = new TenvLog();
-        tenvlog.setCsitenv("SITE");
-        tenvlog.setMtrenv("MTR");
-        tenvlog.setEnvlogid(10L);
-        tenvlog.setMtrvalid("Y");
+        tenvlog.setCsitenv(1);
+        tenvlog.setNmtrenv(2);
+        tenvlog.setNmtrvalid(1);
     }
 
     /**
-     * ❌ tenvlog is null → exception
+     * ❌ tenvlog null → exception
      */
     @Test
-    void hideDialogWindowAction_whenEnvlogNull_shouldThrowException() {
+    void hideDialogWindowAction_whenNoEnvlog_shouldThrowException() {
 
         when(gartEnvlogRepository.usrSurCall(1))
                 .thenReturn(null);
@@ -172,7 +126,7 @@ class BselsurServiceImplTest {
     }
 
     /**
-     * ✅ nsur = null (no repo calls for wcount)
+     * ✅ nsur = null (no wcount lookup)
      */
     @Test
     void hideDialogWindowAction_whenNsurNull() {
@@ -180,129 +134,77 @@ class BselsurServiceImplTest {
         when(gartEnvlogRepository.usrSurCall(1))
                 .thenReturn(tenvlog);
 
-        BlockCommonResponse response =
+        BlocksCommonResponse response =
                 service.hideDialogWindowAction(1, null, 101);
 
         assertNotNull(response);
-        assertEquals(1, response.getTenvlogdto().size());
+        assertEquals(1, response.getTenvlogDtos().size());
+        assertNull(response.getTenvlogDtos().get(0).getWcount());
 
-        verifyNoInteractions(gartsurgr1Repository,
-                             gartsurgr2Repository,
-                             gartsurgr3Repository);
+        verifyNoInteractions(
+                gartsurgr1Repository,
+                gartsurgr2Repository,
+                gartsurgr3Repository
+        );
     }
 
     /**
-     * ✅ ctypsur group-1 → gartsurgr1Repository
+     * ✅ ctypsur group-1
      */
     @Test
-    void hideDialogWindowAction_ctypsurGroup1() {
+    void hideDialogWindowAction_group1() {
 
         when(gartEnvlogRepository.usrSurCall(1))
                 .thenReturn(tenvlog);
         when(gartsurgr1Repository.getWcount("NSUR"))
                 .thenReturn(5);
 
-        BlockCommonResponse response =
+        BlocksCommonResponse response =
                 service.hideDialogWindowAction(1, "NSUR", 101);
 
-        assertEquals(5,
-                response.getTenvlogdto().get(0).getWcount());
+        assertEquals(
+                5,
+                response.getTenvlogDtos().get(0).getWcount()
+        );
     }
 
     /**
-     * ✅ ctypsur group-2 → gartsurgr2Repository
+     * ✅ ctypsur group-2
      */
     @Test
-    void hideDialogWindowAction_ctypsurGroup2() {
+    void hideDialogWindowAction_group2() {
 
         when(gartEnvlogRepository.usrSurCall(1))
                 .thenReturn(tenvlog);
         when(gartsurgr2Repository.getWcount("NSUR"))
                 .thenReturn(7);
 
-        BlockCommonResponse response =
+        BlocksCommonResponse response =
                 service.hideDialogWindowAction(1, "NSUR", 202);
 
-        assertEquals(7,
-                response.getTenvlogdto().get(0).getWcount());
+        assertEquals(
+                7,
+                response.getTenvlogDtos().get(0).getWcount()
+        );
     }
 
     /**
-     * ✅ ctypsur group-3 → gartsurgr3Repository
+     * ✅ ctypsur group-3
      */
     @Test
-    void hideDialogWindowAction_ctypsurGroup3() {
+    void hideDialogWindowAction_group3() {
 
         when(gartEnvlogRepository.usrSurCall(1))
                 .thenReturn(tenvlog);
         when(gartsurgr3Repository.getWcount("NSUR"))
                 .thenReturn(9);
 
-        BlockCommonResponse response =
+        BlocksCommonResponse response =
                 service.hideDialogWindowAction(1, "NSUR", 311);
 
-        assertEquals(9,
-                response.getTenvlogdto().get(0).getWcount());
-    }
-}
-
-
----------------------------------
-
-@ExtendWith(MockitoExtension.class)
-class BselsurServiceImplTest {
-
-    @InjectMocks
-    private BselsurServiceImpl service;
-
-    @Mock
-    private GartObjphyRepository gartObjphyRepository;
-
-    @Mock
-    private MessageService messageService;
-
-    @Mock
-    private Dspmsg dspmsg;
-
-    /**
-     * ✅ Success case
-     * Repository returns value
-     */
-    @Test
-    void hideWindowAction_success() {
-
-        Long wndos = 100L;
-
-        when(gartObjphyRepository.usrSurCall(wndos))
-                .thenReturn(1);
-
-        Integer result = service.hideWindowAction(wndos);
-
-        assertNotNull(result);
-        assertEquals(1, result);
-
-        verify(gartObjphyRepository, times(1))
-                .usrSurCall(wndos);
-    }
-
-    /**
-     * ❌ Repository returns null
-     * ❌ CREClientException thrown
-     */
-    @Test
-    void hideWindowAction_whenNoDataFound_shouldThrowException() {
-
-        Long wndos = 200L;
-
-        when(gartObjphyRepository.usrSurCall(wndos))
-                .thenReturn(null);
-
-        assertThrows(
-                CREClientException.class,
-                () -> service.hideWindowAction(wndos)
+        assertEquals(
+                9,
+                response.getTenvlogDtos().get(0).getWcount()
         );
-
-        verify(gartObjphyRepository, times(1))
-                .usrSurCall(wndos);
     }
 }
